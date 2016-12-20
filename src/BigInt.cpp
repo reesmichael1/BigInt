@@ -141,8 +141,6 @@ BigInt BigInt::operator+(const BigInt& bi)
 BigInt BigInt::operator*(const BigInt& bi)
 {
     BigInt productInt;
-    // BigInt counterInt;
-    // BigInt oneInt("1");
 
     unsigned int factor1Length = bi.intVector.size();
     int currentDigitCounter = factor1Length - 1;
