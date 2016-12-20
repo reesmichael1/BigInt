@@ -69,6 +69,9 @@ TEST_CASE("Arithmetic tests")
         BigInt expected1998("1998");
         CHECK(test999 + test999 == expected1998);
 
+        CHECK(BigInt("391") + BigInt("1700") == BigInt("2091"));
+        CHECK(BigInt("1700") + BigInt("391") == BigInt("2091"));
+
         BigInt expected2997("2997");
         BigInt test1998("1998");
         CHECK(test1998 + test999 == expected2997);
@@ -87,14 +90,24 @@ TEST_CASE("Arithmetic tests")
         CHECK(test123 * 0 == test0);
         CHECK(test123 * 2 == BigInt("246"));
         CHECK(BigInt("999") * 4 == BigInt("3996"));
+        CHECK(BigInt("100") * 10 == BigInt("1000"));
+        CHECK(BigInt("490") * 27 == BigInt("13230"));
     }
 
     SECTION("BigInt multiplication tests")
     {
         BigInt test123("123");
         BigInt test1("1");
+        BigInt test15129("15129");
+        BigInt test17("17");
+        BigInt test2091("2091");
         BigInt test0;
         CHECK(test123 * test0 == test0);
+        CHECK(test0 * test123 == test0);
         CHECK(test123 * test1 == test123);
+        CHECK(test1 * test123 == test123);
+        CHECK(test123 * test123 == test15129);
+        CHECK(test17 * test123 == test2091);
+        CHECK(test123 * test17 == test2091);
     }
 }

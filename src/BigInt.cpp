@@ -1,5 +1,4 @@
 #include <cmath>
-#include <iostream>
 
 #include "BigInt.h"
 
@@ -130,7 +129,7 @@ BigInt BigInt::operator+(const BigInt& bi)
 
     sum.intVector = sumVector;
 
-    return sum;
+    return sum.normalize();
 }
 
 /*!
@@ -141,16 +140,41 @@ BigInt BigInt::operator+(const BigInt& bi)
 
 BigInt BigInt::operator*(const BigInt& bi)
 {
-    return *this;
+    BigInt productInt;
+    // BigInt counterInt;
+    // BigInt oneInt("1");
+
+    unsigned int factor1Length = bi.intVector.size();
+    int currentDigitCounter = factor1Length - 1;
+
+    while (currentDigitCounter >= 0)
+    {
+        int currentPowerOf10 = (factor1Length - 1) - currentDigitCounter;
+        int currentDigit = bi.intVector.at(currentDigitCounter);
+
+        BigInt currentTerm = *this * currentDigit *
+            pow(10, currentPowerOf10);
+        productInt = productInt + currentTerm;
+
+        currentDigitCounter -= 1;
+    }
+
+    return productInt.normalize();
+    
+    /*
+
+    while (!(counterInt == bi))
+    {
+        counterInt = counterInt + oneInt;
+        productInt = productInt + *this;
+    }
+
+    */
+
+    // return productInt;
 }
 
-/*!  
- * Implement usual integer multiplication of BigInts.
- *
- * Note that \a i is a usual C++ int, not a BigInt.
-*/
-
-BigInt BigInt::operator*(const int& i)
+BigInt BigInt::multiplyByDigit(int i)
 {
     BigInt product;
 
@@ -185,11 +209,46 @@ BigInt BigInt::operator*(const int& i)
     if (carry > 0)
         productIntVector.insert(productIntVector.begin(), carry);
 
+    /*
     while (productIntVector.at(0) == 0 && productIntVector.size() > 1)
-        productIntVector.erase(productIntVector.begin(), productIntVector.begin() + 1);
+        productIntVector.erase(productIntVector.begin(), 
+                productIntVector.begin() + 1);
+                */
 
     product.intVector = productIntVector;
-    return product;
+    return product.normalize();
+}
+
+int getNumberOfDigitsInInt(int i)
+{
+    float logOfInt = log10(i);
+    if (floor(logOfInt) == logOfInt)
+        return logOfInt + 1;
+    return ceil(logOfInt);
+}
+
+/*!  
+ * Implement usual integer multiplication of BigInts.
+ *
+ * Note that \a i is a usual C++ int, not a BigInt.
+*/
+
+BigInt BigInt::operator*(const int& i)
+{
+    BigInt productInt;
+
+    int numberOfDigits = getNumberOfDigitsInInt(i);
+
+    for (int j = 0; j < numberOfDigits; j++)
+    {
+        int currentDigit = floor((i % (int)pow(10, j + 1)) / pow(10, j));
+        BigInt currentTerm = this->multiplyByDigit(currentDigit);
+        for (int k = 0; k < j; k++)
+            currentTerm.intVector.push_back(0);
+        productInt = productInt + currentTerm;
+    }
+
+    return productInt.normalize();
 }
 
 /*! 
@@ -201,4 +260,11 @@ BigInt BigInt::operator*(const int& i)
 bool BigInt::operator==(const BigInt& bi)
 {
     return (intVector == bi.intVector);
+}
+
+BigInt BigInt::normalize()
+{
+    while (intVector.at(0) == 0 && intVector.size() > 1)
+        intVector.erase(intVector.begin(), intVector.begin() + 1);
+    return *this;
 }

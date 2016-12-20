@@ -50,6 +50,8 @@ class BigInt
 
     private:
         std::vector<int> intVector;
+        BigInt multiplyByDigit(int i);
+        BigInt normalize();
 };
 
 #endif
