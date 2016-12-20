@@ -11,7 +11,7 @@ A simple BigInt library for C++. Note that, at least for now, the emphasis is on
 
 int main()
 {
-	BigInt big1("10000000000");
+	BigInt big1("10000000000"); // Values can be arbitrarily large
 	BigInt big2("30000000000");
 
 	BigInt big3 = big1 + big2;
