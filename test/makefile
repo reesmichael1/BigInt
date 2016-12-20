@@ -7,7 +7,9 @@ test_skeleton.o: test_skeleton.cpp
 	$(CC) $(CXXFLAGS) -c test_skeleton.cpp
 
 tests: tests.cpp test_skeleton.o ../src/BigInt.h ../src/BigInt.cpp
-	$(CC) $(CXXFLAGS) -o tests tests.cpp test_skeleton.o ../src/BigInt.cpp
+	# tests.exe output for Windows compatability
+	$(CC) $(CXXFLAGS) -o tests.exe tests.cpp test_skeleton.o \
+		../src/BigInt.cpp
 
 clean:
-	$(RM) tests
+	$(RM) tests.exe
