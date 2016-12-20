@@ -19,6 +19,7 @@ class BigInt
     public:
         BigInt();
         BigInt(std::string stringToInt);
+        BigInt expt(const BigInt &power);
         std::vector<int> getVector();
         operator std::string()
         {

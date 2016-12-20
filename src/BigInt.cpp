@@ -207,12 +207,6 @@ BigInt BigInt::multiplyByDigit(int i)
     if (carry > 0)
         productIntVector.insert(productIntVector.begin(), carry);
 
-    /*
-    while (productIntVector.at(0) == 0 && productIntVector.size() > 1)
-        productIntVector.erase(productIntVector.begin(), 
-                productIntVector.begin() + 1);
-                */
-
     product.intVector = productIntVector;
     return product.normalize();
 }
@@ -265,4 +259,19 @@ BigInt BigInt::normalize()
     while (intVector.at(0) == 0 && intVector.size() > 1)
         intVector.erase(intVector.begin(), intVector.begin() + 1);
     return *this;
+}
+
+BigInt BigInt::expt(const BigInt &power)
+{
+    BigInt exponentInt = *this;
+    if (power.intVector.at(0) == 0 && power.intVector.size() == 1)
+        return BigInt("1");
+
+    BigInt powerCount("1");
+    while (!(powerCount == power))
+    {
+        exponentInt = exponentInt * *this;
+        powerCount = powerCount + BigInt("1");
+    }
+    return exponentInt;
 }

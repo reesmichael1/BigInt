@@ -110,4 +110,13 @@ TEST_CASE("Arithmetic tests")
         CHECK(test17 * test123 == test2091);
         CHECK(test123 * test17 == test2091);
     }
+
+    SECTION("Exponentiation tests")
+    {
+        CHECK(BigInt("123").expt(BigInt("0")) == BigInt("1"));
+        CHECK(BigInt("123").expt(BigInt("1")) == BigInt("123"));
+        CHECK(BigInt("123").expt(BigInt("2")) == BigInt("15129"));
+        CHECK(BigInt("100").expt(BigInt("10")) == 
+                BigInt("100000000000000000000"));
+    }
 }
