@@ -20,4 +20,4 @@ int main()
 }
 ```
 
-Compiling and running this example displays `40000000000`.
+Compiling and running this example (note that `C++11` is required) displays `40000000000`.
