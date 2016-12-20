@@ -141,7 +141,17 @@ BigInt BigInt::operator+(const BigInt& bi)
 
 BigInt BigInt::operator*(const BigInt& bi)
 {
-    return *this;
+    BigInt productInt;
+    BigInt counterInt;
+    BigInt oneInt("1");
+
+    while (!(counterInt == bi))
+    {
+        counterInt = counterInt + oneInt;
+        productInt = productInt + *this;
+    }
+
+    return productInt;
 }
 
 /*!  

@@ -93,8 +93,16 @@ TEST_CASE("Arithmetic tests")
     {
         BigInt test123("123");
         BigInt test1("1");
+        BigInt test15129("15129");
+        BigInt test17("17");
+        BigInt test2091("2091");
         BigInt test0;
         CHECK(test123 * test0 == test0);
+        CHECK(test0 * test123 == test0);
         CHECK(test123 * test1 == test123);
+        CHECK(test1 * test123 == test123);
+        CHECK(test123 * test123 == test15129);
+        CHECK(test17 * test123 == test2091);
+        CHECK(test123 * test17 == test2091);
     }
 }
