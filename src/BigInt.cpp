@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 
 #include "BigInt.h"
 
@@ -150,26 +151,14 @@ BigInt BigInt::operator*(const BigInt& bi)
         int currentPowerOf10 = (factor1Length - 1) - currentDigitCounter;
         int currentDigit = bi.intVector.at(currentDigitCounter);
 
-        BigInt currentTerm = *this * currentDigit *
-            pow(10, currentPowerOf10);
+        BigInt currentTerm = *this * currentDigit;
+        currentTerm = currentTerm.pow10(currentPowerOf10);
         productInt = productInt + currentTerm;
 
         currentDigitCounter -= 1;
     }
 
     return productInt.normalize();
-    
-    /*
-
-    while (!(counterInt == bi))
-    {
-        counterInt = counterInt + oneInt;
-        productInt = productInt + *this;
-    }
-
-    */
-
-    // return productInt;
 }
 
 BigInt BigInt::multiplyByDigit(int i)
@@ -235,8 +224,8 @@ BigInt BigInt::operator*(const int& i)
     {
         int currentDigit = floor((i % (int)pow(10, j + 1)) / pow(10, j));
         BigInt currentTerm = this->multiplyByDigit(currentDigit);
-        for (int k = 0; k < j; k++)
-            currentTerm.intVector.push_back(0);
+        
+        currentTerm = currentTerm.pow10(j);
         productInt = productInt + currentTerm;
     }
 
@@ -274,4 +263,12 @@ BigInt BigInt::expt(const BigInt &power)
         powerCount = powerCount + BigInt("1");
     }
     return exponentInt;
+}
+
+BigInt BigInt::pow10(int power)
+{
+    for (int j = 0; j < power; j++)
+        this->intVector.push_back(0);
+
+    return *this;
 }

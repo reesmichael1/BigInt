@@ -17,7 +17,14 @@ int main()
 	BigInt big3 = big1 + big2;
 
 	std::cout << big3 << std::endl;
+	std::cout << big1 * big2 * 2 << std::endl;
 }
 ```
 
-Compiling and running this example (note that `C++11` is required) displays `40000000000`.
+Compiling and running this example (note that `C++11` is required) displays 
+```
+40000000000
+600000000000000000000
+
+```
+

@@ -53,6 +53,7 @@ class BigInt
         std::vector<int> intVector;
         BigInt multiplyByDigit(int i);
         BigInt normalize();
+        BigInt pow10(int power);
 };
 
 #endif
