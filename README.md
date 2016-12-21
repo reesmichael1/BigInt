@@ -18,6 +18,8 @@ int main()
 
 	std::cout << big3 << std::endl;
 	std::cout << big1 * big2 * 2 << std::endl;
+
+    return 0;
 }
 ```
 
