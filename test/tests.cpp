@@ -109,6 +109,10 @@ TEST_CASE("Arithmetic tests")
         CHECK(test123 * test123 == test15129);
         CHECK(test17 * test123 == test2091);
         CHECK(test123 * test17 == test2091);
+        CHECK(BigInt("10000000000") * BigInt("30000000000") * 2 == 
+                BigInt("600000000000000000000"));
+        CHECK(BigInt("30000000000") * BigInt("10000000000") * 2 == 
+                BigInt("600000000000000000000"));
     }
 
     SECTION("Exponentiation tests")
