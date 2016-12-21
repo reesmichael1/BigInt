@@ -24,7 +24,5 @@ int main()
 Compiling and running this example (note that `C++11` is required) displays 
 ```
 40000000000
-600000000000000000000
-
+600000000000000000000 
 ```
-
