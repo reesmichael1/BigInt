@@ -34,6 +34,12 @@ BigInt::BigInt(std::string intString)
         intVector = {0};
 }
 
+/*!
+ * Construct a BigInt from an integer \a intToInt.
+ *
+ * This BigInt will have the same value as \a intToInt.
+*/
+
 BigInt::BigInt(int intToInt)
 {
     intVector = BigInt(std::to_string(intToInt)).intVector;
@@ -247,7 +253,7 @@ bool BigInt::operator==(const BigInt& bi)
     return (intVector == bi.intVector);
 }
 
-/* 
+/*! 
  * Decide if one BigInt is less than another.
  *
  * Return true if this BigInt is less than \a bi.
@@ -280,7 +286,7 @@ bool BigInt::operator< (const BigInt& bi)
     return false;
 }
 
-/* 
+/*! 
  * Decide if one BigInt is greater than another.
  *
  * Return true if this BigInt is greater than \a bi.
@@ -291,7 +297,7 @@ bool BigInt::operator> (const BigInt& bi)
     return !(*this < bi || *this == bi);
 }
 
-/* 
+/*! 
  * Decide if one BigInt is less than or equal to another.
  *
  * Return true if this BigInt is less than or equal to \a bi.
@@ -302,7 +308,7 @@ bool BigInt::operator<=(const BigInt& bi)
     return (*this < bi || *this == bi);
 }
 
-/* 
+/*! 
  * Decide if one BigInt is greater than or equal to another.
  *
  * Return true if this BigInt is greater than or equal to \a bi.
@@ -320,7 +326,7 @@ BigInt BigInt::normalize()
     return *this;
 }
 
-/*
+/*!
  * Raise one BigInt to the exponent given by \a power.
 */
 
