@@ -33,6 +33,15 @@ TEST_CASE("Constructor tests")
         CHECK(test.getVector() == expectedTest);
     }
 
+    SECTION("Constructor with integer value tests")
+    {
+        std::vector<int> expectedTest100 = {1, 0, 0};
+        std::vector<int> expectedTest9 = {9};
+        CHECK(BigInt(100).getVector() == expectedTest100);
+        CHECK(BigInt(9).getVector() == expectedTest9);
+        CHECK(BigInt(9039193) == BigInt("9039193"));
+    }
+
     SECTION("Constructor with non-integer string fails")
     {
         CHECK_THROWS(BigInt test("123abc"));

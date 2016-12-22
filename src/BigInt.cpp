@@ -34,6 +34,11 @@ BigInt::BigInt(std::string intString)
         intVector = {0};
 }
 
+BigInt::BigInt(int intToInt)
+{
+    intVector = BigInt(std::to_string(intToInt)).intVector;
+}
+
 /*!
  * Construct a BigInt with no given initial value.
  * In this case, the BigInt is initialized to 0.
@@ -283,7 +288,7 @@ bool BigInt::operator< (const BigInt& bi)
 
 bool BigInt::operator> (const BigInt& bi)
 {
-    return !(bi < *this || *this == bi);
+    return !(*this < bi || *this == bi);
 }
 
 /* 
