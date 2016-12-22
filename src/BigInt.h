@@ -48,6 +48,10 @@ class BigInt
         BigInt operator*(const BigInt&);
         BigInt operator*(const int&);
         bool operator==(const BigInt&);
+        bool operator< (const BigInt&);
+        bool operator> (const BigInt&);
+        bool operator<=(const BigInt&);
+        bool operator>=(const BigInt&);
 
     private:
         std::vector<int> intVector;

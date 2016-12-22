@@ -41,7 +41,7 @@ TEST_CASE("Constructor tests")
 
 TEST_CASE("Arithmetic tests")
 {
-    SECTION("Equality tests")
+    SECTION("Comparison tests")
     {
         BigInt test0;
         BigInt testExplicit0("0");
@@ -53,6 +53,15 @@ TEST_CASE("Arithmetic tests")
 
         CHECK_FALSE(test123 == test0);
         CHECK_FALSE(test0 == test123);
+
+        CHECK(BigInt("0") < BigInt("123"));
+        CHECK(BigInt("123") > BigInt("0"));
+        CHECK(BigInt("123") < BigInt("124"));
+        CHECK(BigInt("123") <= BigInt("123"));
+        CHECK(BigInt("123") >= BigInt("123"));
+
+        CHECK_FALSE(BigInt("0") > BigInt("123"));
+        CHECK_FALSE(BigInt("123") < BigInt("0"));
     }
 
     SECTION("Addition tests")

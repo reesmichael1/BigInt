@@ -242,12 +242,82 @@ bool BigInt::operator==(const BigInt& bi)
     return (intVector == bi.intVector);
 }
 
+/* 
+ * Decide if one BigInt is less than another.
+ *
+ * Return true if this BigInt is less than \a bi.
+ */
+
+bool BigInt::operator< (const BigInt& bi)
+{
+    BigInt normalizedThis = this->normalize();
+    BigInt comparison = bi;
+    BigInt normalizedComparison = comparison.normalize();
+
+    if (normalizedComparison.intVector.size() < 
+            normalizedThis.intVector.size())
+        return false;
+    if (normalizedComparison.intVector.size() >
+            normalizedThis.intVector.size())
+        return true;
+
+    for (unsigned int i = 0; i < normalizedThis.intVector.size(); i++)
+    {
+        if (normalizedThis.intVector.at(i) > 
+                normalizedComparison.intVector.at(i))
+            return false;
+        else if (normalizedThis.intVector.at(i) < 
+                normalizedComparison.intVector.at(i))
+            return true;
+    }
+
+    // The two BigInts are equal
+    return false;
+}
+
+/* 
+ * Decide if one BigInt is greater than another.
+ *
+ * Return true if this BigInt is greater than \a bi.
+ */
+
+bool BigInt::operator> (const BigInt& bi)
+{
+    return !(bi < *this || *this == bi);
+}
+
+/* 
+ * Decide if one BigInt is less than or equal to another.
+ *
+ * Return true if this BigInt is less than or equal to \a bi.
+ */
+
+bool BigInt::operator<=(const BigInt& bi)
+{
+    return (*this < bi || *this == bi);
+}
+
+/* 
+ * Decide if one BigInt is greater than or equal to another.
+ *
+ * Return true if this BigInt is greater than or equal to \a bi.
+ */
+
+bool BigInt::operator>=(const BigInt& bi)
+{
+    return (!(bi > *this) || *this == bi);
+}
+
 BigInt BigInt::normalize()
 {
     while (intVector.at(0) == 0 && intVector.size() > 1)
         intVector.erase(intVector.begin(), intVector.begin() + 1);
     return *this;
 }
+
+/*
+ * Raise one BigInt to the exponent given by \a power.
+*/
 
 BigInt BigInt::expt(const BigInt &power)
 {
