@@ -3,3 +3,4 @@ doc/
 *.o
 *.exe
 test/tests
+*Doxyfile*
