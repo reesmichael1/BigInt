@@ -13,6 +13,15 @@ BigInt::BigInt(std::string intString)
 {
     bool hitFirstNonZeroDigit = false;
 
+    std::string firstChar = intString.substr(0, 1);
+    if (firstChar.compare("-") == 0)
+    {
+        nonNegative = false;
+        intString.erase(0, 1);
+    }
+    else
+        nonNegative = true;
+
     for (unsigned int i = 0; i < intString.length(); i++)
     {
         std::string c = intString.substr(i,1);
@@ -43,6 +52,10 @@ BigInt::BigInt(std::string intString)
 BigInt::BigInt(int intToInt)
 {
     intVector = BigInt(std::to_string(intToInt)).intVector;
+    if (intToInt < 0)
+        nonNegative = false;
+    else
+        nonNegative = true;
 }
 
 /*!
@@ -53,6 +66,7 @@ BigInt::BigInt(int intToInt)
 BigInt::BigInt()
 {
     intVector = {0};
+    nonNegative = true;
 }
 
 /*! 
@@ -66,29 +80,32 @@ std::vector<int> BigInt::getVector()
     return intVector;
 }
 
-/*!
- * Add two BigInts.
- *
- * This constructs a new BigInt whose value is the sum
- * of the self BigInt and the given \a bi.
-*/
-BigInt BigInt::operator+(const BigInt& bi)
+BigInt BigInt::addTwoNegatives(BigInt bi1, BigInt bi2)
+{
+    bi1.nonNegative = true;
+    bi2.nonNegative = true;
+
+    return (bi1 + bi2) * -1;
+}
+
+BigInt BigInt::addTwoPositives(BigInt bi1, BigInt bi2)
 {
     BigInt sum;
+    sum.nonNegative = true;
 
     std::vector<int> sumVector;
 
     std::vector<int> shortVector;
     std::vector<int> longVector;
-    if (bi.intVector.size() > intVector.size())
+    if (bi1.intVector.size() > bi2.intVector.size())
     {
-        shortVector = intVector;
-        longVector = bi.intVector;
+        shortVector = bi2.intVector;
+        longVector = bi1.intVector;
     }
     else
     {
-        shortVector = bi.intVector;
-        longVector = intVector;
+        shortVector = bi1.intVector;
+        longVector = bi2.intVector;
     }
 
     unsigned int longMaxIndex = longVector.size() - 1;
@@ -139,8 +156,92 @@ BigInt BigInt::operator+(const BigInt& bi)
     }
 
     sum.intVector = sumVector;
+    sum.nonNegative = true;
 
     return sum.normalize();
+}
+
+BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
+{
+    std::vector<int> longVector;
+    std::vector<int> shortVector;
+    std::vector<int> resultVector;
+
+    if (positive.intVector.size() >= negative.intVector.size())
+    {
+        longVector = positive.intVector;
+        shortVector = negative.intVector;
+    }
+    else
+    {
+        longVector = negative.intVector;
+        shortVector = positive.intVector;
+    }
+
+    int longVectorMaxIndex = longVector.size() - 1;
+    int shortVectorMaxIndex = shortVector.size() - 1;
+    int carry = 0;
+    int nextTerm;
+
+    for (int i = shortVectorMaxIndex; i >= 0; i--)
+    {
+        nextTerm = longVector.at(longVectorMaxIndex 
+                - shortVectorMaxIndex + i) - 
+            shortVector.at(i) + carry;
+
+        if (nextTerm < 0)
+        {
+            carry = -1;
+            nextTerm += 10;
+        }
+        else
+            carry = 0;
+
+        resultVector.insert(resultVector.begin(), nextTerm);
+    }
+
+    for (int i = longVectorMaxIndex - shortVectorMaxIndex - 1; i >= 0; i--)
+    {
+        nextTerm = longVector.at(i) + carry;
+        if (nextTerm < 0)
+        {
+            carry = -1;
+            nextTerm += 10;
+        }
+        else
+        {
+            carry = 0;
+        }
+
+        resultVector.insert(resultVector.begin(), nextTerm);
+    }
+
+    if (carry != 0)
+        resultVector.insert(resultVector.begin(), 1);
+
+    BigInt result;
+    result.intVector = resultVector;
+    result.nonNegative = (positive >= negative);
+
+    return result.normalize();
+}
+
+/*!
+ * Add two BigInts.
+ *
+ * This constructs a new BigInt whose value is the sum
+ * of the self BigInt and the given \a bi.
+*/
+BigInt BigInt::operator+(const BigInt& bi)
+{
+    BigInt intToBeAdded = bi;
+    if (!nonNegative && !bi.nonNegative)
+        return BigInt::addTwoNegatives(*this, intToBeAdded);
+    if (nonNegative && bi.nonNegative)
+        return BigInt::addTwoPositives(*this, intToBeAdded);
+    if (nonNegative && !bi.nonNegative)
+        return BigInt::addNegativeToPositive(*this, intToBeAdded);
+    return BigInt::addNegativeToPositive(intToBeAdded, *this);
 }
 
 /*!
@@ -167,6 +268,8 @@ BigInt BigInt::operator*(const BigInt& bi)
 
         currentDigitCounter -= 1;
     }
+
+    productInt.nonNegative = !(nonNegative ^ bi.nonNegative);
 
     return productInt.normalize();
 }
@@ -228,16 +331,39 @@ BigInt BigInt::operator*(const int& i)
 {
     BigInt productInt;
 
-    int numberOfDigits = getNumberOfDigitsInInt(i);
+    int factor = i;
+
+    bool multiplyingByNegative;
+
+    if (factor < 0)
+    {
+        multiplyingByNegative = true;
+        factor *= -1;
+    }
+    else
+        multiplyingByNegative = false;
+
+    int numberOfDigits = getNumberOfDigitsInInt(factor);
 
     for (int j = 0; j < numberOfDigits; j++)
     {
-        int currentDigit = floor((i % (int)pow(10, j + 1)) / pow(10, j));
+        int currentDigit = 
+            floor((factor % (int)pow(10, j + 1)) / pow(10, j));
         BigInt currentTerm = this->multiplyByDigit(currentDigit);
         
         currentTerm = currentTerm.pow10(j);
         productInt = productInt + currentTerm;
     }
+
+    if (multiplyingByNegative)
+    {
+        if (nonNegative)
+            productInt.nonNegative = false;
+        else
+            productInt.nonNegative = true;
+    }
+    else if (!nonNegative)
+        productInt.nonNegative = false;
 
     return productInt.normalize();
 }
@@ -250,7 +376,11 @@ BigInt BigInt::operator*(const int& i)
 
 bool BigInt::operator==(const BigInt& bi)
 {
-    return (intVector == bi.intVector);
+    // For zero, we don't care about the sign
+    std::vector<int> zeroVector = {0};
+    if (intVector == zeroVector && bi.intVector == zeroVector)
+        return true;
+    return (intVector == bi.intVector && isNonNegative() == bi.nonNegative);
 }
 
 /*! 
@@ -261,29 +391,39 @@ bool BigInt::operator==(const BigInt& bi)
 
 bool BigInt::operator< (const BigInt& bi)
 {
-    BigInt normalizedThis = this->normalize();
-    BigInt comparison = bi;
-    BigInt normalizedComparison = comparison.normalize();
-
-    if (normalizedComparison.intVector.size() < 
-            normalizedThis.intVector.size())
-        return false;
-    if (normalizedComparison.intVector.size() >
-            normalizedThis.intVector.size())
-        return true;
-
-    for (unsigned int i = 0; i < normalizedThis.intVector.size(); i++)
+    if (this->nonNegative && bi.nonNegative)
     {
-        if (normalizedThis.intVector.at(i) > 
-                normalizedComparison.intVector.at(i))
-            return false;
-        else if (normalizedThis.intVector.at(i) < 
-                normalizedComparison.intVector.at(i))
-            return true;
-    }
+        BigInt normalizedThis = this->normalize();
+        BigInt comparison = bi;
+        BigInt normalizedComparison = comparison.normalize();
 
-    // The two BigInts are equal
-    return false;
+        if (normalizedComparison.intVector.size() < 
+                normalizedThis.intVector.size())
+            return false;
+        if (normalizedComparison.intVector.size() >
+                normalizedThis.intVector.size())
+            return true;
+
+        for (unsigned int i = 0; i < normalizedThis.intVector.size(); i++)
+        {
+            if (normalizedThis.intVector.at(i) > 
+                    normalizedComparison.intVector.at(i))
+                return false;
+            else if (normalizedThis.intVector.at(i) < 
+                    normalizedComparison.intVector.at(i))
+                return true;
+        }
+
+        // The two BigInts are equal
+        return false;
+    }
+    else if (!(this->nonNegative) && !bi.nonNegative)
+    {
+        return (BigInt::abs(bi) < BigInt::abs(*this));
+    }
+    else if (this->nonNegative && !bi.nonNegative)
+        return false;
+    return true;
 }
 
 /*! 
@@ -333,6 +473,8 @@ BigInt BigInt::normalize()
 BigInt BigInt::expt(const BigInt &power)
 {
     BigInt exponentInt = *this;
+    if (!power.nonNegative)
+        throw ("expt only accepts non-negative values");
     if (power.intVector.at(0) == 0 && power.intVector.size() == 1)
         return BigInt("1");
 
@@ -351,4 +493,17 @@ BigInt BigInt::pow10(int power)
         this->intVector.push_back(0);
 
     return *this;
+}
+
+bool BigInt::isNonNegative()
+{
+    return nonNegative;
+}
+
+BigInt BigInt::abs(BigInt bi)
+{
+    BigInt calculatedAbs = bi;
+    calculatedAbs.nonNegative = true;
+
+    return calculatedAbs;
 }
