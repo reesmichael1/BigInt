@@ -55,6 +55,7 @@ class BigInt
         BigInt operator+(const BigInt&);
         BigInt operator*(const BigInt&);
         BigInt operator*(const int&);
+        BigInt operator-(const BigInt&);
         static BigInt abs(BigInt bi);
         bool operator==(const BigInt&);
         bool operator< (const BigInt&);

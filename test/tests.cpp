@@ -1,7 +1,5 @@
 #include <catch.hpp>
 #include <vector>
-#include <iostream>
-#include <string>
 
 #include "../src/BigInt.h"
 
@@ -16,7 +14,7 @@ TEST_CASE("Constructor tests")
         BigInt test000("000");
         std::vector<int> expectedTest000 = {0};
         CHECK(test000.getVector() == expectedTest000);
-         
+
         BigInt test001("001");
         std::vector<int> expectedTest001 = {1};
         CHECK(test001.getVector() == expectedTest001);
@@ -59,142 +57,303 @@ TEST_CASE("Constructor tests")
     }
 }
 
-TEST_CASE("Arithmetic tests")
+TEST_CASE("Comparison tests")
 {
-    SECTION("Comparison tests")
+    SECTION("Equality tests")
     {
-        BigInt test0;
-        BigInt testExplicit0("0");
-        CHECK(test0 == testExplicit0);
-        CHECK(testExplicit0 == test0);
-
-        BigInt test123("123");
-        CHECK(test123 == test123);
-
-        CHECK_FALSE(test123 == test0);
-        CHECK_FALSE(test0 == test123);
-
-        CHECK_FALSE(BigInt("-123") == BigInt("123"));
-        CHECK_FALSE(BigInt("123") == BigInt("-123"));
-
-        CHECK(BigInt("0") < BigInt("123"));
-        CHECK(BigInt("123") > BigInt("0"));
-        CHECK(BigInt("123") < BigInt("124"));
-        CHECK(BigInt("123") <= BigInt("123"));
-        CHECK(BigInt("123") >= BigInt("123"));
+        CHECK(BigInt("0") == BigInt(0));
+        CHECK(BigInt(0) == BigInt("0"));
 
         CHECK(BigInt("0") == BigInt("-0"));
         CHECK(BigInt("-0") == BigInt("0"));
 
-        CHECK_FALSE(BigInt("0") > BigInt("123"));
-        CHECK_FALSE(BigInt("123") < BigInt("0"));
-        CHECK(BigInt("1848") >= BigInt("-11111"));
-        CHECK(BigInt("999") >= BigInt("-1033"));
 
+        CHECK(BigInt("123") == BigInt("123"));
+        CHECK(BigInt("-123") == BigInt("-123"));
+
+        CHECK_FALSE(BigInt("123") == BigInt("0"));
+        CHECK_FALSE(BigInt("0") == BigInt("123"));
+
+        CHECK_FALSE(BigInt("-123") == BigInt("123"));
+        CHECK_FALSE(BigInt("123") == BigInt("-123"));
+    }
+
+    SECTION("< tests")
+    {
+        CHECK(BigInt("0") < BigInt("123"));
+        CHECK(BigInt("123") < BigInt("124"));
         CHECK(BigInt("-13") < BigInt("13"));
+        CHECK(BigInt("-14") < BigInt("-13"));
+
+        CHECK_FALSE(BigInt("123") < BigInt("0"));
+    }
+
+    SECTION("> tests")
+    {
+        CHECK(BigInt("123") > BigInt("0"));
+        CHECK(BigInt("124") > BigInt("123"));
         CHECK(BigInt("-13") > BigInt("-14"));
         CHECK(BigInt("13") > BigInt("-13"));
-        CHECK(BigInt("-14") < BigInt("-13"));
+        
+        CHECK_FALSE(BigInt("0") > BigInt("123"));
     }
 
-    SECTION("abs tests")
+    SECTION("<= tests")
+    {
+        CHECK(BigInt("123") <= BigInt("123"));
+        CHECK(BigInt("-123") <= BigInt("-123"));
+        CHECK(BigInt("0") <= BigInt("0"));
+
+        CHECK(BigInt("-11111") <= BigInt("1848"));
+        CHECK(BigInt("-1033") <= BigInt("999"));
+        CHECK(BigInt("123") <= BigInt("246"));
+
+        CHECK(BigInt::abs(BigInt("-123")) <= BigInt("246"));
+        CHECK_FALSE(BigInt::abs(BigInt("246")) <= 
+                BigInt::abs(BigInt("-123")));
+    }
+
+    SECTION(">= tests")
+    {
+        CHECK(BigInt("123") >= BigInt("123"));
+        CHECK(BigInt("-123") >= BigInt("-123"));
+        CHECK(BigInt("0") >= BigInt("0"));
+
+        CHECK(BigInt("1848") >= BigInt("-11111"));
+        CHECK(BigInt("999") >= BigInt("-1033"));
+        CHECK(BigInt("246") >= BigInt("123"));
+
+        CHECK(BigInt::abs(BigInt("246")) >= BigInt::abs(BigInt("-123")));
+        CHECK_FALSE(BigInt::abs(BigInt("-123")) >= 
+                BigInt::abs(BigInt("246")));
+    }
+
+}
+
+TEST_CASE("abs tests")
+{
+    SECTION("abs of a positive is the same BigInt")
     {
         CHECK(BigInt::abs(BigInt("13")) == BigInt("13"));
-        CHECK(BigInt::abs(BigInt("0")) == BigInt("0"));
-        CHECK(BigInt::abs(BigInt("-19382")) == BigInt("19382"));
     }
 
-    SECTION("Addition tests")
+    SECTION("abs of zero is zero")
     {
-        BigInt test123("123");
-        BigInt test0;
-        CHECK(test123 + test0 == test123);
-        CHECK(test0 + test123 == test123);
-        
-        BigInt testNeg123("-123");
-        CHECK(test123 + testNeg123 == test0);
+        CHECK(BigInt::abs(BigInt("0")) == BigInt("0"));
+    }
 
-        BigInt expected246 = BigInt("246");
-        CHECK(test123 + test123 == expected246);
+    SECTION("abs of a negative")
+    {
+        CHECK(BigInt::abs(BigInt("-19382")) == BigInt("19382"));
+    }
+}
 
-        CHECK(BigInt("246") + testNeg123 == test123);
+TEST_CASE("Addition tests")
+{
+    SECTION("0 is the additive identity")
+    {
+        CHECK(BigInt("123") + BigInt("0") == BigInt("123"));
+        CHECK(BigInt("-123") + BigInt("0") == BigInt("-123"));
+    }
 
+    SECTION("Addition by additive inverse results in 0")
+    {
+        CHECK(BigInt("123") + BigInt("-123") == BigInt("0"));
+        CHECK(BigInt("0") + BigInt("-0") == BigInt("0"));
+    }
+
+    SECTION("Addition of positive BigInts is correct")
+    {
+        CHECK(BigInt("123") + BigInt("123") == BigInt("246"));
+        CHECK(BigInt("391") + BigInt("1700") == BigInt("2091"));
+        CHECK(BigInt("1700") + BigInt("391") == BigInt("2091"));
+        CHECK(BigInt("999") + BigInt("1998") == BigInt("2997"));
+        CHECK(BigInt("2147483847") + BigInt("2147483847") == 
+                BigInt("4294967694"));
+    }
+
+    SECTION("Addition of negative BigInts is correct")
+    {
         CHECK(BigInt("-999") + BigInt("-999") == BigInt("-1998"));
+        CHECK(BigInt("-999") + BigInt("-1") == BigInt("-1000"));
+    }
+
+    SECTION("Addition of positive and negative BigInts is correct")
+    {
+        CHECK(BigInt("246") + BigInt("-123") == BigInt("123"));
         CHECK(BigInt("1093") + BigInt("-999") == BigInt("94"));
         CHECK(BigInt("999") + BigInt("-1033") == BigInt("-34"));
         CHECK(BigInt("1848") + BigInt("-11111") == BigInt("-9263"));
+        CHECK(BigInt("17") + BigInt("-20") == BigInt("-3"));
+    }
+}
 
-        BigInt test999("999");
-        BigInt expected1998("1998");
-        CHECK(test999 + test999 == expected1998);
-
-        CHECK(BigInt("391") + BigInt("1700") == BigInt("2091"));
-        CHECK(BigInt("1700") + BigInt("391") == BigInt("2091"));
-
-        BigInt expected2997("2997");
-        BigInt test1998("1998");
-        CHECK(test1998 + test999 == expected2997);
-        CHECK(test999 + test1998 == expected2997);
-
-        BigInt testBig("2147483847");
-        BigInt expectedBig("4294967694");
-        CHECK(testBig + testBig == expectedBig);
+TEST_CASE("Subtraction tests")
+{
+    SECTION("Subtraction by 0 changes nothing")
+    {
+        CHECK(BigInt("10") - BigInt("0") == BigInt("10"));
+        CHECK(BigInt("-10") - BigInt("0") == BigInt("-10"));
     }
 
-    SECTION("int multiplication tests")
+    SECTION("x - x = 0")
     {
-        BigInt test123("123");
-        BigInt test0;
-        CHECK(test123 * 1 == test123);
-        CHECK(test123 * 0 == test0);
-        CHECK(test123 * 2 == BigInt("246"));
+        CHECK(BigInt("10") - BigInt("10") == BigInt("0"));
+        CHECK(BigInt("-10") - BigInt("-10") == BigInt("0"));
+    }
+
+    SECTION("Positive big minus positive small")
+    {
+        CHECK(BigInt("123") - BigInt("119") == BigInt("4"));
+        CHECK(BigInt("1000") - BigInt("1") == BigInt("999"));
+        CHECK(BigInt("1000") - BigInt("100") == BigInt("900"));
+    }
+
+    SECTION("Positive small minus positive big")
+    {
+        CHECK(BigInt("17") - BigInt("20") == BigInt("-3"));
+        CHECK(BigInt("100") - BigInt("1000") == BigInt("-900"));
+        CHECK(BigInt("1") - BigInt("123") == BigInt("-122"));
+    }
+
+    SECTION("Negative small minus negative big")
+    {
+        CHECK(BigInt("-1") - BigInt("-100") == BigInt("99"));
+        CHECK(BigInt("-123") - BigInt("-246") == BigInt("123"));
+    }
+
+    SECTION("Negative big minus negative small")
+    {
+        CHECK(BigInt("-100") - BigInt("-1") == BigInt("-99"));
+        CHECK(BigInt("-246") - BigInt("-123") == BigInt("-123"));
+    }
+
+    SECTION("Positive minus negative")
+    {
+        CHECK(BigInt("123") - BigInt("-123") == BigInt("246"));
+        CHECK(BigInt("100") - BigInt("-200") == BigInt("300"));
+        CHECK(BigInt("1") - BigInt("-100") == BigInt("101"));
+    }
+
+    SECTION("Negative minus positive")
+    {
+        CHECK(BigInt("-1038") - BigInt("100") == BigInt("-1138"));
+        CHECK(BigInt("-1") - BigInt("2") == BigInt("-3"));
+        CHECK(BigInt("-14") - BigInt("234") == BigInt("-248"));
+    }
+}
+
+TEST_CASE("int multiplication tests")
+{
+    SECTION("Multiplication by 0 is 0")
+    {
+        CHECK(BigInt("123") * 0 == BigInt("0"));
+        CHECK(BigInt("-123") * 0 == BigInt("0"));
+        CHECK(BigInt("0") * 0 == BigInt("0"));
+    }
+
+    SECTION("1 is the multiplicative identity")
+    {
+        CHECK(BigInt("123") * 1 == BigInt("123"));
+        CHECK(BigInt("-123") * 1 == BigInt("-123"));
+        CHECK(BigInt("0") * 1 == BigInt("0"));
+    } 
+
+    SECTION("Multiplication of positive by positive int")
+    {
+        CHECK(BigInt("123") * 2 == BigInt("246"));
         CHECK(BigInt("999") * 4 == BigInt("3996"));
         CHECK(BigInt("100") * 10 == BigInt("1000"));
         CHECK(BigInt("490") * 27 == BigInt("13230"));
-        CHECK(BigInt("-17") * -3 == BigInt("51"));
-        CHECK(BigInt("-17") * 3 == BigInt(-51));
-        CHECK(BigInt("17") * -3 == BigInt(-51));
     }
 
-    SECTION("BigInt multiplication tests")
+    SECTION("Multiplication of positive by negative int")
     {
-        BigInt test123("123");
-        BigInt test1("1");
-        BigInt test15129("15129");
-        BigInt test17("17");
-        BigInt test3("3");
-        BigInt testNeg3("-3");
-        BigInt testNeg17("-17");
-        BigInt test51("51");
-        BigInt testNeg51("-51");
-        BigInt test2091("2091");
-        BigInt test0;
-        CHECK(test123 * test0 == test0);
-        CHECK(test0 * test123 == test0);
-        CHECK(test123 * test1 == test123);
-        CHECK(test1 * test123 == test123);
-        CHECK(test123 * test123 == test15129);
-        CHECK(test17 * test123 == test2091);
-        CHECK(test123 * test17 == test2091);
-        CHECK(BigInt("-17") * BigInt("-3") == BigInt("51"));
-        CHECK(BigInt("-17") * BigInt("3") == BigInt("-51"));
-        CHECK(BigInt("17") * BigInt("-3") == BigInt("-51"));
-        CHECK(testNeg17 * testNeg3 == test51);
-        CHECK(testNeg17 * test3 == testNeg51);
-        CHECK(test17 * testNeg3 == testNeg51);
+        CHECK(BigInt("17") * -3 == BigInt(-51));
+        CHECK(BigInt("123") * -123 == BigInt("-15129"));
+        CHECK(BigInt("246") * -2 == BigInt("-492"));
+    }
+
+    SECTION("Multiplication of negative by negative int")
+    {
+        CHECK(BigInt("-17") * -3 == BigInt("51"));
+        CHECK(BigInt("-1") * -1 == BigInt("1"));
+        CHECK(BigInt("-134") * -12 == BigInt("1608"));
+    }
+
+    SECTION("Multiplication of negative by positive int")
+    {
+        CHECK(BigInt("-17") * 3 == BigInt(-51));
+        CHECK(BigInt("-1") * 2 == BigInt("-2"));
+        CHECK(BigInt("-134") * 12 == BigInt("-1608"));
+    }
+}
+
+TEST_CASE("BigInt multiplication tests")
+{
+    SECTION("Multiplication by 0 returns 0")
+    {
+        CHECK(BigInt("123") * BigInt("0") == BigInt("0"));
+        CHECK(BigInt("0") * BigInt("123") == BigInt("0"));
+        CHECK(BigInt("-123") * BigInt("0") == BigInt("0"));
+        CHECK(BigInt("0") * BigInt("-123") == BigInt("0"));
+    }
+
+    SECTION("1 is the multiplicative identity")
+    {
+        CHECK(BigInt("123") * BigInt("1") == BigInt("123"));
+        CHECK(BigInt("1") * BigInt("123") == BigInt("123"));
+        CHECK(BigInt("-123") * BigInt("1") == BigInt("123"));
+        CHECK(BigInt("1") * BigInt("-123") == BigInt("123"));
+    }
+
+    SECTION("Multiplication of positive by positive")
+    {
+        CHECK(BigInt("123") * BigInt("123") == BigInt("15129"));
+        CHECK(BigInt("17") * BigInt("123") == BigInt("2091"));
+        CHECK(BigInt("123") * BigInt("17") == BigInt("2091"));
         CHECK(BigInt("10000000000") * BigInt("30000000000") * 2 == 
                 BigInt("600000000000000000000"));
         CHECK(BigInt("30000000000") * BigInt("10000000000") * 2 == 
                 BigInt("600000000000000000000"));
     }
 
-    SECTION("Exponentiation tests")
+    SECTION("Multiplication of positive by negative")
+    {
+        CHECK(BigInt("17") * BigInt("-3") == BigInt("-51"));
+        CHECK(BigInt("123") * BigInt("-123") == BigInt("-15129"));
+        CHECK(BigInt("1043") * BigInt("-12") ==  BigInt("-12516"));
+        CHECK(BigInt("17") * BigInt("-1") == BigInt("-17"));
+    }
+
+    SECTION("Multiplication of negative by negative")
+    {
+        CHECK(BigInt("-17") * BigInt("-3") == BigInt("51"));
+        CHECK(BigInt("-1") * BigInt("-1") == BigInt("1"));
+        CHECK(BigInt("-100") * BigInt("-10") == BigInt("1000"));
+    }
+
+    SECTION("Multiplication of negative by positive")
+    {
+        CHECK(BigInt("-17") * BigInt("3") == BigInt("-51"));
+        CHECK(BigInt("-100") * BigInt("10") == BigInt("-1000"));
+        CHECK(BigInt("-123") * BigInt("123") == BigInt("-15129"));
+    }
+}
+
+TEST_CASE("Exponentiation tests")
+{
+    SECTION("Valid exponents")
     {
         CHECK(BigInt("123").expt(BigInt("0")) == BigInt("1"));
         CHECK(BigInt("123").expt(BigInt("1")) == BigInt("123"));
         CHECK(BigInt("123").expt(BigInt("2")) == BigInt("15129"));
         CHECK(BigInt("100").expt(BigInt("10")) == 
                 BigInt("100000000000000000000"));
+    }
+
+    SECTION("Invalid exponents")
+    {
         CHECK_THROWS(BigInt("100").expt(BigInt(-3)));
     }
 }

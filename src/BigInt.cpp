@@ -163,32 +163,81 @@ BigInt BigInt::addTwoPositives(BigInt bi1, BigInt bi2)
 
 BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
 {
-    std::vector<int> longVector;
-    std::vector<int> shortVector;
+    BigInt result;
     std::vector<int> resultVector;
 
-    if (positive.intVector.size() >= negative.intVector.size())
-    {
-        longVector = positive.intVector;
-        shortVector = negative.intVector;
-    }
-    else
-    {
-        longVector = negative.intVector;
-        shortVector = positive.intVector;
-    }
+    //if (BigInt::abs(positive) >= BigInt::abs(negative) || 
+    //        positive.intVector.size() != negative.intVector.size())
+    //{
+        std::vector<int> longVector;
+        std::vector<int> shortVector;
 
-    int longVectorMaxIndex = longVector.size() - 1;
-    int shortVectorMaxIndex = shortVector.size() - 1;
-    int carry = 0;
-    int nextTerm;
+        if (positive.intVector.size() >= negative.intVector.size())
+        {
+            longVector = positive.intVector;
+            shortVector = negative.intVector;
+        }
+        else
+        {
+            longVector = negative.intVector;
+            shortVector = positive.intVector;
+        }
 
-    for (int i = shortVectorMaxIndex; i >= 0; i--)
+        int longVectorMaxIndex = longVector.size() - 1;
+        int shortVectorMaxIndex = shortVector.size() - 1;
+        int carry = 0;
+        int nextTerm;
+
+        for (int i = shortVectorMaxIndex; i >= 0; i--)
+        {
+            nextTerm = longVector.at(longVectorMaxIndex 
+                    - shortVectorMaxIndex + i) - 
+                shortVector.at(i) + carry;
+
+            if (nextTerm < 0)
+            {
+                carry = -1;
+                nextTerm += 10;
+            }
+            else
+                carry = 0;
+
+            resultVector.insert(resultVector.begin(), nextTerm);
+        }
+
+        for (int i = longVectorMaxIndex - shortVectorMaxIndex - 1; i >= 0; i--)
+        {
+            nextTerm = longVector.at(i) + carry;
+            if (nextTerm < 0)
+            {
+                carry = -1;
+                nextTerm += 10;
+            }
+            else
+            {
+                carry = 0;
+            }
+
+            resultVector.insert(resultVector.begin(), nextTerm);
+        }
+
+        if (carry != 0)
+            resultVector.insert(resultVector.begin(), 1);
+
+        result.intVector = resultVector;
+        result.nonNegative = 
+            (BigInt::abs(positive) >= BigInt::abs(negative));
+
+        return result.normalize();
+    //}
+
+    //int nextTerm;
+    //int carry = 0;
+
+    for (int i = positive.intVector.size() - 1; i >= 0; i--)
     {
-        nextTerm = longVector.at(longVectorMaxIndex 
-                - shortVectorMaxIndex + i) - 
-            shortVector.at(i) + carry;
-
+        nextTerm = negative.intVector.at(i) - positive.intVector.at(i) 
+            + carry;
         if (nextTerm < 0)
         {
             carry = -1;
@@ -200,30 +249,11 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
         resultVector.insert(resultVector.begin(), nextTerm);
     }
 
-    for (int i = longVectorMaxIndex - shortVectorMaxIndex - 1; i >= 0; i--)
-    {
-        nextTerm = longVector.at(i) + carry;
-        if (nextTerm < 0)
-        {
-            carry = -1;
-            nextTerm += 10;
-        }
-        else
-        {
-            carry = 0;
-        }
-
-        resultVector.insert(resultVector.begin(), nextTerm);
-    }
-
-    if (carry != 0)
-        resultVector.insert(resultVector.begin(), 1);
-
-    BigInt result;
     result.intVector = resultVector;
-    result.nonNegative = (positive >= negative);
+    result.nonNegative = (BigInt::abs(positive) >= BigInt::abs(negative));
 
     return result.normalize();
+
 }
 
 /*!
@@ -242,6 +272,20 @@ BigInt BigInt::operator+(const BigInt& bi)
     if (nonNegative && !bi.nonNegative)
         return BigInt::addNegativeToPositive(*this, intToBeAdded);
     return BigInt::addNegativeToPositive(intToBeAdded, *this);
+}
+
+/*! 
+ * Implement subtraction between two BigInts.
+ *
+ * This constructs a new BigInt whose value is the difference between
+ * the self BigInt and the given \a bi.
+*/
+
+BigInt BigInt::operator-(const BigInt& bi)
+{
+    BigInt negative = bi;
+    negative.nonNegative = !negative.nonNegative;
+    return *this + negative;
 }
 
 /*!
