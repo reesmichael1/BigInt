@@ -303,8 +303,8 @@ TEST_CASE("BigInt multiplication tests")
     {
         CHECK(BigInt("123") * BigInt("1") == BigInt("123"));
         CHECK(BigInt("1") * BigInt("123") == BigInt("123"));
-        CHECK(BigInt("-123") * BigInt("1") == BigInt("123"));
-        CHECK(BigInt("1") * BigInt("-123") == BigInt("123"));
+        CHECK(BigInt("-123") * BigInt("1") == BigInt("-123"));
+        CHECK(BigInt("1") * BigInt("-123") == BigInt("-123"));
     }
 
     SECTION("Multiplication of positive by positive")
