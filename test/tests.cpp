@@ -251,9 +251,16 @@ TEST_CASE("int addition tests")
             CHECK(BigInt("13") + 13 == BigInt("26"));
         }
     }
+
+    SECTION("Left and right addition")
+    {
+        CHECK(100 + BigInt("100") + 100 == BigInt("300"));
+        CHECK(-100 + BigInt("200") + -100 == BigInt("0"));
+        CHECK(-1234 + BigInt("200") + 100 == BigInt("-934"));
+    }
 }
 
-TEST_CASE("Subtraction tests")
+TEST_CASE("BigInt subtraction tests")
 {
     SECTION("Subtraction by 0 changes nothing")
     {
@@ -308,49 +315,209 @@ TEST_CASE("Subtraction tests")
     }
 }
 
+TEST_CASE("int subtraction tests")
+{
+    SECTION("Subtraction by zero changes nothing")
+    {
+        SECTION("Right subtraction")
+        {
+            CHECK(BigInt("100") - 0 == BigInt("100"));
+            CHECK(BigInt("-100") - 0 == BigInt("-100"));
+        }
+
+        SECTION("Left subtraction")
+        {
+            CHECK(100 - BigInt("0") == BigInt("100"));
+            CHECK(-100 - BigInt("0") == BigInt("-100"));
+        }
+    }
+
+    SECTION("Positive minus positive")
+    {
+        SECTION("Right subtraction")
+        {
+            CHECK(BigInt("123") - 23 == BigInt("100"));
+            CHECK(BigInt("123") - 246 == BigInt("-123"));
+            CHECK(BigInt("10") - 1000 == BigInt("-990"));
+        }
+
+        SECTION("Left subtraction")
+        {
+            CHECK(123 - BigInt("23") == BigInt("100"));
+            CHECK(197 - BigInt("200") == BigInt("-3"));
+            CHECK(10 - BigInt("1000") == BigInt("-990"));
+        }
+    }
+
+    SECTION("Positive minus negative")
+    {
+        SECTION("Right subtraction")
+        {
+            CHECK(BigInt("123") - -23 == BigInt("146"));
+            CHECK(BigInt("10") - -100 == BigInt("110"));
+        }
+
+        SECTION("Left subtraction")
+        {
+            CHECK(117 - BigInt("-1000") == BigInt("1117"));
+            CHECK(100 - BigInt("-1") == BigInt("101"));
+        }
+    }
+
+    SECTION("Negative minus positive")
+    {
+        SECTION("Right subtraction")
+        {
+            CHECK(BigInt("-123") - 123 == BigInt("-246"));
+            CHECK(BigInt("-10") - 100 == BigInt("-110"));
+            CHECK(BigInt("-1") - 1 == BigInt("-2"));
+        }
+
+        SECTION("Left subtraction")
+        {
+            CHECK(-123 - BigInt("123") == BigInt("-246"));
+            CHECK(-10 - BigInt("100") == BigInt("-110"));
+            CHECK(-1 - BigInt("1") == BigInt("-2"));
+        }
+    }
+
+    SECTION("Negative minus negative")
+    {
+        SECTION("Right subtraction")
+        {
+            CHECK(BigInt("-100") - -100 == BigInt("0"));
+            CHECK(BigInt("-5") - -14 == BigInt("9"));
+            CHECK(BigInt("-213") - -14 == BigInt("-199"));
+        }
+
+        SECTION("Left subtraction")
+        {
+            CHECK(-100 - BigInt("-100") == BigInt("0"));
+            CHECK(-5 - BigInt("-14") == BigInt("9"));
+            CHECK(-213 - BigInt("-14") == BigInt("-199"));
+        }
+    }
+
+    SECTION("Subtraction on both left and right")
+    {
+        CHECK(13 - BigInt("100") - 100 == BigInt("-187"));
+        CHECK(104 - BigInt("104") - -104 == BigInt("104"));
+    }
+}
+
 TEST_CASE("int multiplication tests")
 {
     SECTION("Multiplication by 0 is 0")
     {
-        CHECK(BigInt("123") * 0 == BigInt("0"));
-        CHECK(BigInt("-123") * 0 == BigInt("0"));
-        CHECK(BigInt("0") * 0 == BigInt("0"));
+        SECTION("Left multiplication")
+        {
+            CHECK(0 * BigInt("123") == BigInt("0"));
+            CHECK(0 * BigInt("-123") == BigInt("0"));
+            CHECK(0 * BigInt("0") == BigInt("0"));
+        }
+
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("123") * 0 == BigInt("0"));
+            CHECK(BigInt("-123") * 0 == BigInt("0"));
+            CHECK(BigInt("0") * 0 == BigInt("0"));
+        }
     }
 
     SECTION("1 is the multiplicative identity")
     {
-        CHECK(BigInt("123") * 1 == BigInt("123"));
-        CHECK(BigInt("-123") * 1 == BigInt("-123"));
-        CHECK(BigInt("0") * 1 == BigInt("0"));
+
+        SECTION("Left multiplication")
+        {
+            CHECK(1 * BigInt("123") == BigInt("123"));
+            CHECK(1 * BigInt("-1") == BigInt("-1"));
+            CHECK(1 * BigInt("-117") == BigInt("-117"));
+        }
+
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("123") * 1 == BigInt("123"));
+            CHECK(BigInt("-123") * 1 == BigInt("-123"));
+            CHECK(BigInt("0") * 1 == BigInt("0"));
+        }
     } 
 
     SECTION("Multiplication of positive by positive int")
     {
-        CHECK(BigInt("123") * 2 == BigInt("246"));
-        CHECK(BigInt("999") * 4 == BigInt("3996"));
-        CHECK(BigInt("100") * 10 == BigInt("1000"));
-        CHECK(BigInt("490") * 27 == BigInt("13230"));
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("123") * 2 == BigInt("246"));
+            CHECK(BigInt("999") * 4 == BigInt("3996"));
+            CHECK(BigInt("100") * 10 == BigInt("1000"));
+            CHECK(BigInt("490") * 27 == BigInt("13230"));
+        }
+
+        SECTION("Left multiplication")
+        {
+            CHECK(2 * BigInt("246") == BigInt("492"));
+            CHECK(13 * BigInt("3") == BigInt("39"));
+            CHECK(100 * BigInt("100") == BigInt("10000"));
+            CHECK(123 * BigInt("123") == BigInt("15129"));
+        }
     }
 
     SECTION("Multiplication of positive by negative int")
     {
-        CHECK(BigInt("17") * -3 == BigInt(-51));
-        CHECK(BigInt("123") * -123 == BigInt("-15129"));
-        CHECK(BigInt("246") * -2 == BigInt("-492"));
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("17") * -3 == BigInt(-51));
+            CHECK(BigInt("123") * -123 == BigInt("-15129"));
+            CHECK(BigInt("246") * -2 == BigInt("-492"));
+        }
+
+        SECTION("Left multiplication")
+        {
+            CHECK(-2 * BigInt("123") == BigInt("-246"));
+            CHECK(-1 * BigInt("10") == BigInt("-10"));
+            CHECK(-113 * BigInt("1234") == BigInt("-139442"));
+        }
     }
 
     SECTION("Multiplication of negative by negative int")
     {
-        CHECK(BigInt("-17") * -3 == BigInt("51"));
-        CHECK(BigInt("-1") * -1 == BigInt("1"));
-        CHECK(BigInt("-134") * -12 == BigInt("1608"));
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("-17") * -3 == BigInt("51"));
+            CHECK(BigInt("-1") * -1 == BigInt("1"));
+            CHECK(BigInt("-134") * -12 == BigInt("1608"));
+        }
+
+        SECTION("Left multiplication")
+        {
+            CHECK(-2 * BigInt("-123") == BigInt("246"));
+            CHECK(-1 * BigInt("-79") == BigInt("79"));
+            CHECK(-97 * BigInt("-91") == BigInt("8827"));
+        }
     }
 
     SECTION("Multiplication of negative by positive int")
     {
-        CHECK(BigInt("-17") * 3 == BigInt(-51));
-        CHECK(BigInt("-1") * 2 == BigInt("-2"));
-        CHECK(BigInt("-134") * 12 == BigInt("-1608"));
+        SECTION("Right multiplication")
+        {
+            CHECK(BigInt("-17") * 3 == BigInt(-51));
+            CHECK(BigInt("-1") * 2 == BigInt("-2"));
+            CHECK(BigInt("-134") * 12 == BigInt("-1608"));
+        }
+
+        SECTION("Left multiplication")
+        {
+            CHECK(2 * BigInt("-123") == BigInt("-246"));
+            CHECK(10 * BigInt("-10") == BigInt("-100"));
+            CHECK(13 * BigInt("-14") == BigInt("-182"));
+            CHECK(179 * BigInt("-1938") == BigInt("-346902"));
+        }
+    }
+
+    SECTION("Left and right multiplication by int")
+    {
+        CHECK(2 * BigInt("1") * -2 == BigInt("-4"));
+        CHECK(13 * BigInt("13") * 13 == BigInt("2197"));
+        CHECK(-1 * BigInt("10") * -100 == BigInt("1000"));
     }
 }
 

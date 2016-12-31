@@ -2,8 +2,6 @@
 
 #include "BigInt.h"
 
-//#include <iostream>
-
 /*! 
  * Construct a BigInt instance from a std::string \a intString.
  *
@@ -255,142 +253,12 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
 
 }
 
-/*! 
- * Implement subtraction between two BigInts.
- *
- * This constructs a new BigInt whose value is the difference between
- * the self BigInt and the given \a bi.
-*/
-
-BigInt BigInt::operator-(const BigInt& bi)
-{
-    BigInt negative = bi;
-    negative.nonNegative = !negative.nonNegative;
-    return *this + negative;
-}
-
-/*!
- * Implement multiplication between BigInts.
- *
- * Returns the product of the integers represented by this BigInt and \a bi.
-*/
-
-BigInt BigInt::operator*(const BigInt& bi)
-{
-    BigInt productInt;
-
-    unsigned int factor1Length = bi.intVector.size();
-    int currentDigitCounter = factor1Length - 1;
-
-    while (currentDigitCounter >= 0)
-    {
-        int currentPowerOf10 = (factor1Length - 1) - currentDigitCounter;
-        int currentDigit = bi.intVector.at(currentDigitCounter);
-
-        BigInt currentTerm = *this * currentDigit;
-        currentTerm = currentTerm.pow10(currentPowerOf10);
-        productInt = productInt + currentTerm;
-
-        currentDigitCounter -= 1;
-    }
-
-    productInt.nonNegative = !(nonNegative ^ bi.nonNegative);
-
-    return productInt.normalize();
-}
-
-BigInt BigInt::multiplyByDigit(int i)
-{
-    BigInt product;
-
-    std::vector<int> productIntVector;
-    int indexMax = intVector.size() - 1;
-    
-    for (unsigned int j = 0; j < intVector.size(); j++)
-    {
-        productIntVector.insert(productIntVector.begin(), 
-                                    intVector.at(indexMax - j) * i);
-    }
-
-    int j = 0;
-    int carry = 0;
-
-    while (j <= indexMax)
-    {
-        int currentTerm = productIntVector.at(indexMax - j) + carry;
-        if (currentTerm > 10)
-        {
-            carry = floor(currentTerm / 10);
-            productIntVector.at(indexMax - j) = currentTerm - 10 * carry;
-        }
-        else
-        {
-            carry = 0;
-            productIntVector.at(indexMax - j) = currentTerm;
-        }
-        j++;
-    }
-
-    if (carry > 0)
-        productIntVector.insert(productIntVector.begin(), carry);
-
-    product.intVector = productIntVector;
-    return product.normalize();
-}
-
 int getNumberOfDigitsInInt(int i)
 {
     float logOfInt = log10(i);
     if (floor(logOfInt) == logOfInt)
         return logOfInt + 1;
     return ceil(logOfInt);
-}
-
-/*!  
- * Implement usual integer multiplication of BigInts.
- *
- * Note that \a i is a usual C++ int, not a BigInt.
-*/
-
-BigInt BigInt::operator*(const int& i)
-{
-    BigInt productInt;
-
-    int factor = i;
-
-    bool multiplyingByNegative;
-
-    if (factor < 0)
-    {
-        multiplyingByNegative = true;
-        factor *= -1;
-    }
-    else
-        multiplyingByNegative = false;
-
-    int numberOfDigits = getNumberOfDigitsInInt(factor);
-
-    for (int j = 0; j < numberOfDigits; j++)
-    {
-        int currentDigit = 
-            floor((factor % (int)pow(10, j + 1)) / pow(10, j));
-        BigInt currentTerm = this->multiplyByDigit(currentDigit);
-        
-        currentTerm = currentTerm.pow10(j);
-        productInt = productInt + currentTerm;
-    }
-
-    if (multiplyingByNegative)
-    {
-        if (nonNegative)
-            productInt.nonNegative = false;
-        else
-            productInt.nonNegative = true;
-    }
-    else if (!nonNegative)
-        productInt.nonNegative = false;
-
-    return productInt.normalize();
 }
 
 /*! 
@@ -555,4 +423,149 @@ BigInt operator+(const BigInt& b1, const BigInt& b2)
 BigInt operator+(const BigInt& bi, const int& i)
 {
     return BigInt(i) + bi;
+}
+
+/*! 
+ * Implement subtraction between two BigInts.
+ *
+ * This constructs a new BigInt whose value is the difference between
+ * the self BigInt and the given \a b1.
+*/
+
+BigInt operator-(const BigInt& b1, const BigInt& b2)
+{
+    BigInt negative = b2;
+    negative.nonNegative = !negative.nonNegative;
+    return b1 + negative;
+}
+
+/*!
+ * Implement multiplication between BigInts.
+ *
+ * Returns the product of the integers represented by \a b1 and \a b2.
+*/
+
+BigInt operator*(const BigInt& b1, const BigInt& b2)
+{
+    BigInt productInt;
+
+    unsigned int factor1Length = b2.intVector.size();
+    int currentDigitCounter = factor1Length - 1;
+
+    while (currentDigitCounter >= 0)
+    {
+        int currentPowerOf10 = (factor1Length - 1) - currentDigitCounter;
+        int currentDigit = b2.intVector.at(currentDigitCounter);
+
+        BigInt currentTerm = b1 * currentDigit;
+        currentTerm = currentTerm.pow10(currentPowerOf10);
+        productInt = productInt + currentTerm;
+
+        currentDigitCounter -= 1;
+    }
+
+    productInt.nonNegative = !(b1.nonNegative ^ b2.nonNegative);
+
+    return productInt.normalize();
+}
+
+BigInt BigInt::multiplyByDigit(const BigInt& bi, int i)
+{
+    BigInt product;
+
+    std::vector<int> productIntVector;
+    int indexMax = bi.intVector.size() - 1;
+    
+    for (unsigned int j = 0; j < bi.intVector.size(); j++)
+    {
+        productIntVector.insert(productIntVector.begin(), 
+                                    bi.intVector.at(indexMax - j) * i);
+    }
+
+    int j = 0;
+    int carry = 0;
+
+    while (j <= indexMax)
+    {
+        int currentTerm = productIntVector.at(indexMax - j) + carry;
+        if (currentTerm > 10)
+        {
+            carry = floor(currentTerm / 10);
+            productIntVector.at(indexMax - j) = currentTerm - 10 * carry;
+        }
+        else
+        {
+            carry = 0;
+            productIntVector.at(indexMax - j) = currentTerm;
+        }
+        j++;
+    }
+
+    if (carry > 0)
+        productIntVector.insert(productIntVector.begin(), carry);
+
+    product.intVector = productIntVector;
+    return product.normalize();
+}
+
+/*!  
+ * Implement usual integer multiplication of BigInts.
+ *
+ * Note that \a i is a usual C++ int, not a BigInt.
+*/
+
+BigInt operator*(const BigInt& bi, const int& i)
+{
+    BigInt productInt;
+
+    int factor = i;
+
+    bool multiplyingByNegative;
+
+    if (factor < 0)
+    {
+        multiplyingByNegative = true;
+        factor *= -1;
+    }
+    else
+        multiplyingByNegative = false;
+
+    int numberOfDigits = getNumberOfDigitsInInt(factor);
+
+    for (int j = 0; j < numberOfDigits; j++)
+    {
+        int currentDigit = 
+            floor((factor % (int)pow(10, j + 1)) / pow(10, j));
+        BigInt currentTerm = BigInt::multiplyByDigit(bi, currentDigit);
+        
+        currentTerm = currentTerm.pow10(j);
+        productInt = productInt + currentTerm;
+    }
+
+    if (multiplyingByNegative)
+    {
+        if (bi.nonNegative)
+            productInt.nonNegative = false;
+        else
+            productInt.nonNegative = true;
+    }
+    else if (!bi.nonNegative)
+        productInt.nonNegative = false;
+
+    return productInt.normalize();
+}
+
+std::ostream& operator<<(std::ostream& os, const BigInt& bi)
+{
+    std::string representation = "";
+    for (int i : bi.intVector)
+    {
+        representation.append(std::to_string(i));
+    }
+
+    if (!bi.nonNegative)
+        representation.insert(0, "-");
+
+    os << representation;
+    return os;
 }
