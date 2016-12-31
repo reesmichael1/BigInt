@@ -148,7 +148,7 @@ TEST_CASE("abs tests")
     }
 }
 
-TEST_CASE("Addition tests")
+TEST_CASE("BigInt addition tests")
 {
     SECTION("0 is the additive identity")
     {
@@ -185,6 +185,71 @@ TEST_CASE("Addition tests")
         CHECK(BigInt("999") + BigInt("-1033") == BigInt("-34"));
         CHECK(BigInt("1848") + BigInt("-11111") == BigInt("-9263"));
         CHECK(BigInt("17") + BigInt("-20") == BigInt("-3"));
+    }
+}
+
+TEST_CASE("int addition tests")
+{
+    SECTION("Left addition")
+    {
+        SECTION("Zero is the additive identity")
+        {
+            CHECK(1 + BigInt("0") == BigInt("1"));
+            CHECK(-1 + BigInt("0") == BigInt("-1"));
+
+            CHECK(0 + BigInt("13") == BigInt("13"));
+            CHECK(0 + BigInt("-13") == BigInt("-13"));
+        }
+
+        SECTION("Small plus big")
+        {
+            CHECK(1 + BigInt("100") == BigInt("101"));
+            CHECK(13 + BigInt("999") == BigInt("1012"));
+        }
+
+        SECTION("Big plus small")
+        {
+            CHECK(-17 + BigInt("3") == BigInt("-14"));
+            CHECK(17 + BigInt("-3") == BigInt("14"));
+            CHECK(17 + BigInt("3") == BigInt("20"));
+        }
+
+        SECTION("No carries")
+        {
+            CHECK(1 + BigInt("1") == BigInt("2"));
+            CHECK(13 + BigInt("13") == BigInt("26"));
+        }
+    }
+
+    SECTION("Right addition")
+    {
+        SECTION("Zero is the additive identity")
+        {
+            CHECK(BigInt("0") + 1 == BigInt("1"));
+            CHECK(BigInt("0") + -1 == BigInt("-1"));
+
+            CHECK(BigInt("13") + 0 == BigInt("13"));
+            CHECK(BigInt("-13") + 0 == BigInt("-13"));
+        }
+
+        SECTION("Small plus big")
+        {
+            CHECK(BigInt("100") + 1 == BigInt("101"));
+            CHECK(BigInt("999") + 13 == BigInt("1012"));
+        }
+
+        SECTION("Big plus small")
+        {
+            CHECK(BigInt("3") + -17 == BigInt("-14"));
+            CHECK(BigInt("-3") + 17 == BigInt("14"));
+            CHECK(BigInt("3") + 17 == BigInt("20"));
+        }
+
+        SECTION("No carries")
+        {
+            CHECK(BigInt("1") + 1 == BigInt("2"));
+            CHECK(BigInt("13") + 13 == BigInt("26"));
+        }
     }
 }
 

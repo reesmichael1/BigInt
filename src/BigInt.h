@@ -35,7 +35,7 @@ class BigInt
 
             return representation;
         };
-        operator char*() const
+        explicit operator char*() const
         {
             std::string representation = "";
             for (int i : intVector)
@@ -52,7 +52,8 @@ class BigInt
             charRep[representation.size()] = '\0';
             return charRep;
         };
-        BigInt operator+(const BigInt&);
+        friend BigInt operator+(const BigInt& b1, const BigInt& b2);
+        friend BigInt operator+(const BigInt& bi, const int& i);
         BigInt operator*(const BigInt&);
         BigInt operator*(const int&);
         BigInt operator-(const BigInt&);
@@ -77,3 +78,5 @@ class BigInt
 };
 
 #endif
+
+

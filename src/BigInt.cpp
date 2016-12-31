@@ -2,6 +2,8 @@
 
 #include "BigInt.h"
 
+//#include <iostream>
+
 /*! 
  * Construct a BigInt instance from a std::string \a intString.
  *
@@ -165,10 +167,12 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
 {
     BigInt result;
     std::vector<int> resultVector;
+    int carry = 0;
+    int nextTerm;
 
-    //if (BigInt::abs(positive) >= BigInt::abs(negative) || 
-    //        positive.intVector.size() != negative.intVector.size())
-    //{
+    if (BigInt::abs(positive) >= BigInt::abs(negative) || 
+            positive.intVector.size() != negative.intVector.size())
+    {
         std::vector<int> longVector;
         std::vector<int> shortVector;
 
@@ -185,8 +189,6 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
 
         int longVectorMaxIndex = longVector.size() - 1;
         int shortVectorMaxIndex = shortVector.size() - 1;
-        int carry = 0;
-        int nextTerm;
 
         for (int i = shortVectorMaxIndex; i >= 0; i--)
         {
@@ -229,10 +231,7 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
             (BigInt::abs(positive) >= BigInt::abs(negative));
 
         return result.normalize();
-    //}
-
-    //int nextTerm;
-    //int carry = 0;
+    }
 
     for (int i = positive.intVector.size() - 1; i >= 0; i--)
     {
@@ -254,24 +253,6 @@ BigInt BigInt::addNegativeToPositive(BigInt positive, BigInt negative)
 
     return result.normalize();
 
-}
-
-/*!
- * Add two BigInts.
- *
- * This constructs a new BigInt whose value is the sum
- * of the self BigInt and the given \a bi.
-*/
-BigInt BigInt::operator+(const BigInt& bi)
-{
-    BigInt intToBeAdded = bi;
-    if (!nonNegative && !bi.nonNegative)
-        return BigInt::addTwoNegatives(*this, intToBeAdded);
-    if (nonNegative && bi.nonNegative)
-        return BigInt::addTwoPositives(*this, intToBeAdded);
-    if (nonNegative && !bi.nonNegative)
-        return BigInt::addNegativeToPositive(*this, intToBeAdded);
-    return BigInt::addNegativeToPositive(intToBeAdded, *this);
 }
 
 /*! 
@@ -500,7 +481,7 @@ bool BigInt::operator<=(const BigInt& bi)
 
 bool BigInt::operator>=(const BigInt& bi)
 {
-    return (!(bi > *this) || *this == bi);
+    return ((*this > bi) || *this == bi);
 }
 
 BigInt BigInt::normalize()
@@ -550,4 +531,28 @@ BigInt BigInt::abs(BigInt bi)
     calculatedAbs.nonNegative = true;
 
     return calculatedAbs;
+}
+
+/*!
+ * Add two BigInts.
+ *
+ * This constructs a new BigInt whose value is the sum
+ * of the self BigInt and the given \a bi.
+*/
+BigInt operator+(const BigInt& b1, const BigInt& b2)
+{
+    BigInt lhs = b1;
+    BigInt rhs = b2;
+    if (!lhs.nonNegative && !rhs.nonNegative)
+        return BigInt::addTwoNegatives(lhs, rhs);
+    if (lhs.nonNegative && rhs.nonNegative)
+        return BigInt::addTwoPositives(lhs, rhs);
+    if (lhs.nonNegative && !rhs.nonNegative)
+        return BigInt::addNegativeToPositive(lhs, rhs);
+    return BigInt::addNegativeToPositive(rhs, lhs);
+}
+
+BigInt operator+(const BigInt& bi, const int& i)
+{
+    return BigInt(i) + bi;
 }
