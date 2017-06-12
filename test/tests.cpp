@@ -51,12 +51,10 @@ TEST_CASE("Constructor tests")
         CHECK_FALSE(BigInt(-100).isNonNegative());
     }
 
-    /* 
     SECTION("Constructor with non-integer string fails")
     {
         CHECK_THROWS(BigInt test("123abc"));
     }
-    */
 }
 
 TEST_CASE("Comparison tests")
@@ -589,5 +587,94 @@ TEST_CASE("Exponentiation tests")
     SECTION("Invalid exponents")
     {
         CHECK_THROWS(BigInt("100").expt(BigInt(-3)));
+    }
+}
+
+TEST_CASE("Division tests")
+{
+    SECTION("Division by zero")
+    {
+        CHECK_THROWS(BigInt("100") / 0);
+        CHECK_THROWS(BigInt("100") / BigInt("0"));
+        CHECK_THROWS(BigInt("-100") / 0);
+        CHECK_THROWS(BigInt("-100") / BigInt("0"));
+    }
+
+    SECTION("Division by one")
+    {
+        CHECK(BigInt("17") / BigInt("1") == BigInt("17"));
+        CHECK(BigInt("-17") / BigInt("1") == BigInt("-17"));
+        CHECK(BigInt("17") / BigInt("-1") == BigInt("-17"));
+        CHECK(BigInt("-17") / BigInt("-1") == BigInt("17"));
+    }
+
+    SECTION("Positive divided by positive")
+    {
+        SECTION("No remaineder")
+        {
+            CHECK(BigInt("100") / BigInt("4") == BigInt("25"));
+            CHECK(BigInt("100") / 4 == BigInt("25"));
+            CHECK(BigInt("123456") / BigInt("192") == BigInt("643"));
+        }
+
+        SECTION("With remainder")
+        {
+            CHECK(BigInt("13") / BigInt("4") == BigInt("3"));
+            CHECK(BigInt("134") / 10 == BigInt("13"));
+            CHECK(BigInt("123456") / BigInt("284") == BigInt("434"));
+            CHECK(BigInt("1") / 2 == BigInt("0"));
+        }
+    }
+
+    SECTION("Negative divided by positive")
+    {
+        SECTION("No remainder")
+        {
+            CHECK(BigInt("-100") / BigInt("4") == BigInt("-25"));
+            CHECK(BigInt("-100") / 4 == BigInt("-25"));
+            CHECK(BigInt("-123456") / BigInt("192") == BigInt("-643"));
+            CHECK(30 / BigInt("4") == BigInt("7"));
+        }
+
+        SECTION("With remainder")
+        {
+            CHECK(BigInt("-13") / BigInt("4") == BigInt("-3"));
+            CHECK(BigInt("-134") / 10 == BigInt("-13"));
+            CHECK(BigInt("-123456") / BigInt("284") == BigInt("-434"));
+        }
+    }
+
+    SECTION("Positive divided by negative")
+    {
+        SECTION("No remainder")
+        {
+            CHECK(BigInt("100") / BigInt("-4") == BigInt("-25"));
+            CHECK(BigInt("100") / -4 == BigInt("-25"));
+            CHECK(BigInt("123456") / BigInt("-192") == BigInt("-643"));
+        }
+
+        SECTION("With remainder")
+        {
+            CHECK(BigInt("13") / BigInt("-4") == BigInt("-3"));
+            CHECK(BigInt("134") / -10 == BigInt("-13"));
+            CHECK(BigInt("123456") / BigInt("-284") == BigInt("-434"));
+        }
+    }
+
+    SECTION("Negative divided by negative")
+    {
+        SECTION("No remainder")
+        {
+            CHECK(BigInt("-100") / BigInt("-4") == BigInt("25"));
+            CHECK(BigInt("-100") / -4 == BigInt("25"));
+            CHECK(BigInt("-123456") / BigInt("-192") == BigInt("643"));
+        }
+
+        SECTION("With remainder")
+        {
+            CHECK(BigInt("-13") / BigInt("-4") == BigInt("3"));
+            CHECK(BigInt("-134") / -10 == BigInt("13"));
+            CHECK(BigInt("-123456") / BigInt("-284") == BigInt("434"));
+        }
     }
 }

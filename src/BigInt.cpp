@@ -56,6 +56,8 @@ BigInt::BigInt(int intToInt)
         nonNegative = false;
     else
         nonNegative = true;
+
+    normalize();
 }
 
 /*!
@@ -267,7 +269,7 @@ int getNumberOfDigitsInInt(int i)
  * Two BigInts are said to be equal if and only if their digits are the same.
 */
 
-bool BigInt::operator==(const BigInt& bi)
+bool BigInt::operator==(const BigInt& bi) const
 {
     // For zero, we don't care about the sign
     std::vector<int> zeroVector = {0};
@@ -282,27 +284,26 @@ bool BigInt::operator==(const BigInt& bi)
  * Return true if this BigInt is less than \a bi.
  */
 
-bool BigInt::operator< (const BigInt& bi)
+bool BigInt::operator< (const BigInt& bi) const
 {
     if (this->nonNegative && bi.nonNegative)
     {
-        BigInt normalizedThis = this->normalize();
         BigInt comparison = bi;
         BigInt normalizedComparison = comparison.normalize();
 
         if (normalizedComparison.intVector.size() < 
-                normalizedThis.intVector.size())
+                this->intVector.size())
             return false;
         if (normalizedComparison.intVector.size() >
-                normalizedThis.intVector.size())
+                this->intVector.size())
             return true;
 
-        for (unsigned int i = 0; i < normalizedThis.intVector.size(); i++)
+        for (unsigned int i = 0; i < this->intVector.size(); i++)
         {
-            if (normalizedThis.intVector.at(i) > 
+            if (this->intVector.at(i) > 
                     normalizedComparison.intVector.at(i))
                 return false;
-            else if (normalizedThis.intVector.at(i) < 
+            else if (this->intVector.at(i) < 
                     normalizedComparison.intVector.at(i))
                 return true;
         }
@@ -325,7 +326,7 @@ bool BigInt::operator< (const BigInt& bi)
  * Return true if this BigInt is greater than \a bi.
  */
 
-bool BigInt::operator> (const BigInt& bi)
+bool BigInt::operator> (const BigInt& bi) const
 {
     return !(*this < bi || *this == bi);
 }
@@ -336,7 +337,7 @@ bool BigInt::operator> (const BigInt& bi)
  * Return true if this BigInt is less than or equal to \a bi.
  */
 
-bool BigInt::operator<=(const BigInt& bi)
+bool BigInt::operator<=(const BigInt& bi) const
 {
     return (*this < bi || *this == bi);
 }
@@ -347,7 +348,7 @@ bool BigInt::operator<=(const BigInt& bi)
  * Return true if this BigInt is greater than or equal to \a bi.
  */
 
-bool BigInt::operator>=(const BigInt& bi)
+bool BigInt::operator>=(const BigInt& bi) const
 {
     return ((*this > bi) || *this == bi);
 }
@@ -388,12 +389,12 @@ BigInt BigInt::pow10(int power)
     return *this;
 }
 
-bool BigInt::isNonNegative()
+bool BigInt::isNonNegative() const
 {
     return nonNegative;
 }
 
-BigInt BigInt::abs(BigInt bi)
+BigInt BigInt::abs(const BigInt bi) 
 {
     BigInt calculatedAbs = bi;
     calculatedAbs.nonNegative = true;
@@ -423,6 +424,75 @@ BigInt operator+(const BigInt& b1, const BigInt& b2)
 BigInt operator+(const BigInt& bi, const int& i)
 {
     return BigInt(i) + bi;
+}
+
+/* !
+ * Implement division between two BigInts.
+ *
+ * This constructs a new BigInt whose value is the quotient of the self
+ * BigInt and the given \a divisor.
+*/
+BigInt operator/(const BigInt& b1, const BigInt& b2)
+{
+    BigInt dividend = b1;
+    BigInt divisor = b2;
+
+    // Simple base cases
+    if (divisor == 1)
+        return dividend;
+
+    if (divisor == -1)
+        return -1 * dividend;
+
+    // In this case, return 0
+    if (BigInt::abs(divisor) > BigInt::abs(dividend))
+        return BigInt();
+
+    if (divisor == 0)
+        throw("Attempt to divide by zero");
+
+    BigInt quotientInt;
+
+    divisor = BigInt::abs(divisor);
+    dividend = BigInt::abs(dividend);
+
+    // Find the first chunk of digits in the dividend larger than the divisor
+    int counter = 0;
+    BigInt smallInt(dividend.intVector.at(counter));
+
+    while (smallInt < divisor)
+    {
+        counter++;
+        smallInt.intVector.push_back(dividend.intVector.at(counter));
+    }
+
+    // Figure out what digit we need to multiply the divisor by 
+    // to get the closest to smallInt
+    int i = 1;
+    for (; i < 10; i++)
+    {
+        if ((i + 1) * divisor > smallInt)
+            break;
+
+        else if (i * divisor == smallInt)
+            break;
+    }
+
+    quotientInt.intVector.push_back(i);
+
+    // Find out how many powers of ten to multiply by
+    int powersOfTen = dividend.intVector.size() - counter - 1;
+    quotientInt = quotientInt * pow(10, powersOfTen);
+
+    BigInt remainder = dividend - (divisor * quotientInt);
+    quotientInt = quotientInt.normalize() + remainder / divisor;
+    quotientInt.nonNegative = !(b1.nonNegative ^ b2.nonNegative);
+    return quotientInt;
+}
+
+BigInt operator/(const BigInt& bi, const int& i)
+{
+    return bi / BigInt(i);
 }
 
 /*! 

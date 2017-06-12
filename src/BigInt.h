@@ -41,13 +41,16 @@ class BigInt
         friend BigInt operator*(const BigInt& b1, const BigInt& b2);
         friend BigInt operator*(const BigInt& bi, const int& i);
         friend BigInt operator-(const BigInt& b1, const BigInt& b2);
-        static BigInt abs(BigInt bi);
-        bool operator==(const BigInt&);
-        bool operator< (const BigInt&);
-        bool operator> (const BigInt&);
-        bool operator<=(const BigInt&);
-        bool operator>=(const BigInt&);
-        bool isNonNegative();
+        friend BigInt operator/(const BigInt& dividend, const BigInt& 
+                divisor);
+        friend BigInt operator/(const BigInt& dividend, const int& divisor);
+        static BigInt abs(const BigInt bi);
+        bool operator==(const BigInt&) const;
+        bool operator< (const BigInt&) const;
+        bool operator> (const BigInt&) const;
+        bool operator<=(const BigInt&) const;
+        bool operator>=(const BigInt&) const;
+        bool isNonNegative() const;
 
     private:
         std::vector<int> intVector;

@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-make tests && ./tests
+make tests && ./tests $1
