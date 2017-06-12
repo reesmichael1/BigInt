@@ -1,2 +1,2 @@
-#!/usr/bin/sh
-make tests && ./tests.exe
+#!/usr/bin/env sh
+make tests && ./tests
